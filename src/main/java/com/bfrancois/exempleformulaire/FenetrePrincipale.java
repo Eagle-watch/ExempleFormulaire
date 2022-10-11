@@ -1,15 +1,24 @@
+package com.bfrancois.exempleformulaire;
+
+import javax.imageio.IIOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import com.bfrancois.exempleformulaire.models.Pays;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.IOException;
+
 
 public class FenetrePrincipale extends JFrame implements WindowListener{
 
     protected boolean themeSombreActif = true;
     protected int defaultMargin = 10;
-
     public FenetrePrincipale() {
         setSize(500,500);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -53,7 +62,56 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
 
         panneau.add(HelperForm.generateRow(boutonTheme,10 , 10 , 0 ,0 , HelperForm.ALIGN_RIGHT), BorderLayout.NORTH);
 
-        panneau.add(HelperForm.generateRow(boutonValider,0,10,10,0,HelperForm.ALIGN_RIGHT),BorderLayout.SOUTH);
+        panneau.add(HelperForm.generateRow(boutonValider,0,10,10,0, HelperForm.ALIGN_RIGHT),BorderLayout.SOUTH);
+
+//--------------Formulaire -----------
+
+        Box formulaire = Box.createVerticalBox();
+        panneau.add(formulaire,BorderLayout.CENTER);
+
+//        LISTE CIVILITE
+        String [] listeCivilites = {"Monsieur", "Madame", "Mademoiselle", "Autre"};
+        JComboBox<String> selectCivilite = new JComboBox<>(listeCivilites);
+        selectCivilite.setMaximumSize(new Dimension(200,30));
+        formulaire.add(HelperForm.generateField("Civilité",selectCivilite));
+
+//        Liste Pays
+
+        Pays[] listePays = {
+
+                new Pays("France", "FR", "fr.png"),
+                new Pays("Royaume-unis", "GBR", "gb.png"),
+                new Pays("Allemagne", "DE", "de.png")
+
+        };
+
+        JComboBox<Pays> selectPays = new JComboBox<>(listePays);
+        selectPays.setMaximumSize(new Dimension(300,30));
+
+        selectPays.setRenderer(new DefaultListCellRenderer(){
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
+                Pays pays = (Pays)value;
+                setText(pays.getNom());
+
+                try {
+                    Image image = ImageIO.read(new File("src/main/resources/drapeaux/" + pays.getImage()));
+
+                    Image resizedImage = image.getScaledInstance(20, 16, Image.SCALE_SMOOTH);
+
+                    setIconTextGap(10);
+
+                    setIcon(new ImageIcon(resizedImage));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                return this;
+            }
+        });
+
+        formulaire.add(HelperForm.generateField("Pays",selectPays));
 
         setVisible(true);
     }
