@@ -15,29 +15,7 @@ import java.util.regex.Pattern;
 public class ChampsSaisie extends Box{
 
     Character[] caracteresAutorises = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',' '};
-    protected JTextField textField = new JTextField() {
-        @Override
-        protected void processKeyEvent(KeyEvent e) {
-
-            //Si il supprime ou utilise les fleches on laisse le traitement standard
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT
-                    || e.getKeyCode() == KeyEvent.VK_LEFT
-                    || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                super.processKeyEvent(e);
-            } else {
-                //on créait l'expression régulière (n'importe quel caractère ou espace)
-                Pattern regex = Pattern.compile("[\\p{L}\s]");
-                //on transforme le caractère saisi en chaine de texte
-                String lettre = String.valueOf(e.getKeyChar());
-                //on créait un objet matcher à partire de la regex et la lettre saisie
-                Matcher matcher = regex.matcher(lettre);
-                //on vérifie si la lettre correspond à la regex
-                if (matcher.matches()) {
-                    super.processKeyEvent(e);
-                }
-            }
-        }
-    };
+    protected JTextField textField;
     protected JLabel icone = new JLabel();
     protected JLabel message = new JLabel();
 
@@ -46,8 +24,47 @@ public class ChampsSaisie extends Box{
     protected ImageIcon checkIcon;
     protected ImageIcon errorIcon;
 
+    protected String regex;
+
     public ChampsSaisie() {
         super(BoxLayout.Y_AXIS);
+        textField = new JTextField();
+        initialiser();
+
+    }
+
+    public ChampsSaisie(String expression) {
+        super(BoxLayout.Y_AXIS);
+        this.regex=expression;
+        textField = new JTextField() {
+            @Override
+            protected void processKeyEvent(KeyEvent e) {
+
+                //Si il supprime ou utilise les fleches on laisse le traitement standard
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT
+                        || e.getKeyCode() == KeyEvent.VK_LEFT
+                        || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    super.processKeyEvent(e);
+                } else {
+                    //on créait l'expression régulière (n'importe quel caractère ou espace)
+                    Pattern regex = Pattern.compile(expression);
+                    //on transforme le caractère saisi en chaine de texte
+                    String lettre = String.valueOf(e.getKeyChar());
+                    //on créait un objet matcher à partire de la regex et la lettre saisie
+                    Matcher matcher = regex.matcher(lettre);
+                    //on vérifie si la lettre correspond à la regex
+                    if (matcher.matches()) {
+                        super.processKeyEvent(e);
+                    }
+                }
+            }
+        };
+        initialiser();
+
+    }
+
+    public void initialiser() {
+
         Box ligne1 = Box.createHorizontalBox();
         ligne1.add(textField);
         ligne1.add(icone);
