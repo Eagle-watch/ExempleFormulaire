@@ -81,18 +81,24 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
 
         //---------------- CHAMPS TEXT : NOM ---------------
 
-        ChampsSaisie champsNom = new ChampsSaisie("[\\p{L}\s]");
+        ChampsSaisie champsNom = new ChampsSaisie("[\\p{L}\s'-]");
         formulaire.add(
                 HelperForm.generateField("Nom", champsNom)
         );
 
         //---------------- CHAMPS TEXT : PRENOM ---------------
 
-        JTextField champsPrenom = new JTextField();
+        ChampsSaisie champsPrenom = new ChampsSaisie("[\\p{L}\s'-]");
         formulaire.add(
                 HelperForm.generateField("Prénom", champsPrenom)
         );
 
+        //---------------- CHAMPS TEXT : Email ---------------
+
+        ChampsSaisie champsEmail = new ChampsSaisie("[a-zA-Z0-9\\.@-]");
+        formulaire.add(
+                HelperForm.generateField("email", champsEmail)
+        );
 
         //---------------- LISTE PAYS ------------------
         Pays[] listePays = {
@@ -101,7 +107,6 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 new Pays("Allemagne", "DE", "de.png")
         };
 
-        System.out.println(listePays[0]);
 
         JComboBox<Pays> selectPays = new JComboBox<>(listePays);
 
@@ -135,6 +140,13 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 HelperForm.generateField("Pays",selectPays)
         );
 
+        //---------------- CHAMPS TEXT : Ages ---------------
+
+        ChampsSaisie champsAge = new ChampsSaisie("[0-9]");
+        formulaire.add(
+                HelperForm.generateField("Age", champsAge)
+        );
+
 
         //--------- BOUTON VALIDER FORMULAIRE -----------
 
@@ -149,7 +161,7 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
 
             champsNom.resetMessage();
 //          champsNom.setBorder(BorderFactory.createEmptyBorder());
-            champsPrenom.setBorder(BorderFactory.createEmptyBorder());
+            champsPrenom.resetMessage();
 
             if(champsNom.getText().equals("")) {
                 erreurNom = true;
@@ -159,7 +171,7 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
             if(champsPrenom.getText().equals("")) {
                 erreurPrenom = true;
                 message += "\n - Prénom obligatoire,";
-                champsPrenom.setBorder(BorderFactory.createLineBorder(Color.red));
+                champsPrenom.erreur("Champs Obligatoire");
             }
 
             //on supprime la dernière des virgules
