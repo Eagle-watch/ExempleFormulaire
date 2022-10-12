@@ -9,7 +9,26 @@ public class HelperForm {
 
     public static final int ALIGN_RIGHT = 1;
     public static final int ALIGN_LEFT = 2;
-    public static Box generateField(String texteLabel, Component component) {
+
+    public static Box generateField(
+            String texteLabel,
+            Component component) {
+        return generateField(texteLabel,component,200);
+    }
+
+    public static Box generateField(
+            String texteLabel,
+            Component component,
+            int largeur) {
+
+        if(component instanceof JTextField || component instanceof JComboBox) {
+            component.setMaximumSize(new Dimension(largeur, 30));
+            component.setPreferredSize(new Dimension(largeur, 30));
+        } else if (component instanceof ChampsSaisie champs) {
+            //ChampsSaisie champs = (ChampsSaisie)component;
+            champs.getTextField().setMaximumSize(new Dimension(largeur, 30));
+            champs.getTextField().setPreferredSize(new Dimension(largeur, 30));
+        }
 
         Box champs = Box.createHorizontalBox();
         champs.add(Box.createRigidArea(new Dimension(10,1)));
@@ -21,7 +40,6 @@ public class HelperForm {
         champs.add(Box.createHorizontalGlue());
 
         return champs;
-
     }
 
     public static Box generateRow(
@@ -29,7 +47,7 @@ public class HelperForm {
             int marginTop,
             int marginRight,
             int marginBottom,
-            int marginLeft ,
+            int marginLeft,
             int alignement
     ) {
         Box conteneurVertical = Box.createVerticalBox();
@@ -46,10 +64,8 @@ public class HelperForm {
         //ajout de la marge horizontale à gauche
         conteneurHorizontal.add(Box.createRigidArea(new Dimension(marginLeft,1)));
 
-        if (alignement == ALIGN_RIGHT){
-
+        if(alignement == ALIGN_RIGHT) {
             conteneurHorizontal.add(Box.createHorizontalGlue());
-
         }
 
         conteneurHorizontal.add(component);
@@ -59,5 +75,4 @@ public class HelperForm {
 
         return conteneurVertical;
     }
-
 }

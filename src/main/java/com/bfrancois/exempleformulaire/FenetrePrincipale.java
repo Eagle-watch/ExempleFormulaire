@@ -19,9 +19,11 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
 
     protected boolean themeSombreActif = true;
     protected int defaultMargin = 10;
+
     public FenetrePrincipale() {
         setSize(500,500);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+
         addWindowListener(this);
 
         //ajout du panneau principal avec un layout de 5 zones
@@ -29,7 +31,7 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
         JPanel panneau = new JPanel(new BorderLayout());
         setContentPane(panneau);
 
-        //--------- BOUTON THEME ------------------------
+        //--------- BOUTON THEME -----------
 
         JButton boutonTheme = new JButton("Changer le theme");
 
@@ -51,42 +53,57 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 }
         );
 
-        //--------- BOUTON VALIDER FORMULAIRE -----------
 
-        JButton boutonValider = new JButton("Enregistrer");
 
-        boutonValider.addActionListener(e -> System.out.println("Formulaire validé"));
-        boutonValider.setSize(new Dimension(100, 30));
+        //---------- BOUTONS DU HAUT -------
+        panneau.add(
+                HelperForm.generateRow(boutonTheme,10,10,0,0, HelperForm.ALIGN_RIGHT),
+                BorderLayout.NORTH);
 
-        //---------- DISPOSITION DES COMPOSANTS ---------
 
-        panneau.add(HelperForm.generateRow(boutonTheme,10 , 10 , 0 ,0 , HelperForm.ALIGN_RIGHT), BorderLayout.NORTH);
 
-        panneau.add(HelperForm.generateRow(boutonValider,0,10,10,0, HelperForm.ALIGN_RIGHT),BorderLayout.SOUTH);
+        //---------------- FORMULAIRE ------------------
 
-//--------------Formulaire -----------
 
         Box formulaire = Box.createVerticalBox();
-        panneau.add(formulaire,BorderLayout.CENTER);
+        //formulaire.setBorder(BorderFactory.createLineBorder(Color.RED));
 
-//        LISTE CIVILITE
-        String [] listeCivilites = {"Monsieur", "Madame", "Mademoiselle", "Autre"};
+        panneau.add(formulaire, BorderLayout.CENTER);
+
+
+        //---------------- LISTE CIVILITE ------------------
+
+        String[] listeCivilites = {"Monsieur","Madame","Mademoiselle","Autre"};
         JComboBox<String> selectCivilite = new JComboBox<>(listeCivilites);
-        selectCivilite.setMaximumSize(new Dimension(200,30));
-        formulaire.add(HelperForm.generateField("Civilité",selectCivilite));
 
-//        Liste Pays
+        formulaire.add(HelperForm.generateField(
+                "Civilité",selectCivilite));
 
+        //---------------- CHAMPS TEXT : NOM ---------------
+
+        ChampsSaisie champsNom = new ChampsSaisie();
+        formulaire.add(
+                HelperForm.generateField("Nom", champsNom)
+        );
+
+        //---------------- CHAMPS TEXT : PRENOM ---------------
+
+        JTextField champsPrenom = new JTextField();
+        formulaire.add(
+                HelperForm.generateField("Prénom", champsPrenom)
+        );
+
+
+        //---------------- LISTE PAYS ------------------
         Pays[] listePays = {
-
                 new Pays("France", "FR", "fr.png"),
                 new Pays("Royaume-unis", "GBR", "gb.png"),
                 new Pays("Allemagne", "DE", "de.png")
-
         };
 
+        System.out.println(listePays[0]);
+
         JComboBox<Pays> selectPays = new JComboBox<>(listePays);
-        selectPays.setMaximumSize(new Dimension(300,30));
 
         selectPays.setRenderer(new DefaultListCellRenderer(){
             @Override
@@ -96,12 +113,15 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 setText(pays.getNom());
 
                 try {
+                    //on charge l'image de drapeau correspond au pays
                     Image image = ImageIO.read(new File("src/main/resources/drapeaux/" + pays.getImage()));
 
+                    //on redimensionne l'image
                     Image resizedImage = image.getScaledInstance(20, 16, Image.SCALE_SMOOTH);
 
                     setIconTextGap(10);
 
+                    //on change l'icone du JLabel par l'image redimensionnée
                     setIcon(new ImageIcon(resizedImage));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -111,7 +131,57 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
             }
         });
 
-        formulaire.add(HelperForm.generateField("Pays",selectPays));
+        formulaire.add(
+                HelperForm.generateField("Pays",selectPays)
+        );
+
+
+        //--------- BOUTON VALIDER FORMULAIRE -----------
+
+        JButton boutonValider = new JButton("Enregistrer");
+
+        boutonValider.addActionListener(e -> {
+
+            boolean erreurNom = false;
+            boolean erreurPrenom = false;
+
+            String message = "Le formulaire comporte des erreurs : ";
+
+            champsNom.resetMessage();
+//          champsNom.setBorder(BorderFactory.createEmptyBorder());
+            champsPrenom.setBorder(BorderFactory.createEmptyBorder());
+
+            if(champsNom.getText().equals("")) {
+                erreurNom = true;
+                message += "\n - Nom obligatoire,";
+                champsNom.erreur("Champs obligatoire");
+            }
+            if(champsPrenom.getText().equals("")) {
+                erreurPrenom = true;
+                message += "\n - Prénom obligatoire,";
+                champsPrenom.setBorder(BorderFactory.createLineBorder(Color.red));
+            }
+
+            //on supprime la dernière des virgules
+            message = message.substring(0,message.length()-1);
+
+            if(erreurNom || erreurPrenom) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        message,
+                        "Erreur de saisie",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        boutonValider.setSize(new Dimension(100, 30));
+
+        //---------- BOUTONS DU BAS -------
+
+        panneau.add(
+                HelperForm.generateRow(boutonValider,0,10,10,0, HelperForm.ALIGN_RIGHT),
+                BorderLayout.SOUTH);
 
         setVisible(true);
     }
@@ -120,7 +190,6 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
         FlatDarculaLaf.setup();
         new FenetrePrincipale();
     }
-
 
     @Override
     public void windowOpened(WindowEvent e) {
@@ -132,21 +201,17 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
         String[] choix = {"Oui", "Ne pas fermer l'application"};
         int choixUtilisateur = JOptionPane.showOptionDialog(
                 this,
-                "Voulez vous vraiment quitter l'apllication ?",
-                "confirmer",
+                "Voulez-vous vraiment fermer l'application",
+                "Confirmer",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 choix,
-                choix[1]
-        );
+                choix[1]);
 
-        if (choixUtilisateur == JOptionPane.YES_OPTION) {
-
+        if(choixUtilisateur == JOptionPane.YES_OPTION) {
             System.exit(1);
-
         }
-
     }
 
     @Override
@@ -156,12 +221,10 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
 
     @Override
     public void windowIconified(WindowEvent e) {
-
     }
 
     @Override
     public void windowDeiconified(WindowEvent e) {
-
     }
 
     @Override
