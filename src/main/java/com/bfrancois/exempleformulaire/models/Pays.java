@@ -1,6 +1,8 @@
 package com.bfrancois.exempleformulaire.models;
 
-public class Pays {
+import java.io.Serializable;
+
+public class Pays implements Serializable {
 
     protected String nom;
     protected String iso;

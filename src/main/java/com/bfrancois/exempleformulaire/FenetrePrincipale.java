@@ -14,8 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +25,29 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
     protected int defaultMargin = 10;
 
     public FenetrePrincipale() {
+
+        ObjectInputStream ois = null;
+        try {
+            final FileInputStream fichier = new FileInputStream("personne.eesc");
+            ois = new ObjectInputStream(fichier);
+            Utilisateur utilisateurFichier = (Utilisateur)ois.readObject();
+            System.out.printf(utilisateurFichier.getNom());
+            ois.close();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Impossible d'ouvrir le fichier"
+            );
+        } catch (ClassNotFoundException | ClassCastException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Fichier corrompu"
+            );
+
+        }
+
+
         setSize(500,500);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -253,10 +275,29 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                         Integer.parseInt(champsAge.getText()),
                         champsMarie.isSelected()
                 );
-                JOptionPane.showMessageDialog(
-                        this,
-                        "L'Utilisateur " + nouvelleUtilisateur.getNom() + "a bien été ajouté"
-                );
+
+                ObjectOutputStream oos = null;
+                try {
+                    FileOutputStream fichier = new FileOutputStream("personne.eesc");
+
+                    oos = new ObjectOutputStream(fichier);
+                    oos.writeObject(nouvelleUtilisateur);
+                    oos.flush();
+                    oos.close();
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "L'Utilisateur " + nouvelleUtilisateur.getNom() + "a bien été ajouté"
+                    );
+                } catch (IOException ex) {
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Impossible d'enregistrer l'utilisateur"
+                    );
+
+                }
+
             }
         });
 
