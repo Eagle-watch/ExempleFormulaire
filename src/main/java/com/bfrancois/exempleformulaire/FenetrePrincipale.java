@@ -5,14 +5,19 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import com.bfrancois.exempleformulaire.models.Pays;
+import com.bfrancois.exempleformulaire.models.Utilisateur;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class FenetrePrincipale extends JFrame implements WindowListener{
@@ -100,6 +105,35 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 HelperForm.generateField("email", champsEmail)
         );
 
+        champsEmail.getTextField().addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(champsEmail.getText().equals("")) {
+                    champsEmail.erreur("Champs Obligatoire");
+                } else {
+
+                    String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(champsEmail.getText());
+                    if(!matcher.matches()){
+                        champsEmail.erreur("Format Invalide");
+                    }
+
+                }
+
+            }
+        });
+
         //---------------- LISTE PAYS ------------------
         Pays[] listePays = {
                 new Pays("France", "FR", "fr.png"),
@@ -147,6 +181,12 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 HelperForm.generateField("Age", champsAge)
         );
 
+        //---------------- CHAMPS Checkbox : Marie/Pacse ---------------
+
+        JCheckBox champsMarie = new JCheckBox();
+        formulaire.add(
+                HelperForm.generateField("Marie/Pacse", champsMarie)
+        );
 
         //--------- BOUTON VALIDER FORMULAIRE -----------
 
@@ -156,34 +196,67 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
 
             boolean erreurNom = false;
             boolean erreurPrenom = false;
+            boolean erreurAge = false;
+            boolean erreurEmail = false;
 
             String message = "Le formulaire comporte des erreurs : ";
 
             champsNom.resetMessage();
 //          champsNom.setBorder(BorderFactory.createEmptyBorder());
             champsPrenom.resetMessage();
-
+                    // Validateur Nom
             if(champsNom.getText().equals("")) {
                 erreurNom = true;
                 message += "\n - Nom obligatoire,";
                 champsNom.erreur("Champs obligatoire");
             }
+                    // Validateur Prenoom
             if(champsPrenom.getText().equals("")) {
                 erreurPrenom = true;
                 message += "\n - Prénom obligatoire,";
                 champsPrenom.erreur("Champs Obligatoire");
             }
+                    // Validateur Age
+            if(champsAge.getText().equals("")) {
+                erreurAge = true;
+                message += "\n - Age obligatoire,";
+                champsAge.erreur("Champs Obligatoire");
+            } else {
 
+                int age = Integer.parseInt(champsAge.getText());
+                if (age<= 0 || age > 150){
+                    erreurAge =true;
+                    message += "\n - Age avec une valeur Impossible, ";
+                    champsAge.erreur("Valeur Impossible");
+                }
+
+            }
             //on supprime la dernière des virgules
             message = message.substring(0,message.length()-1);
 
-            if(erreurNom || erreurPrenom) {
+            if(erreurNom || erreurPrenom || erreurAge || erreurEmail) {
 
                 JOptionPane.showMessageDialog(
                         this,
                         message,
                         "Erreur de saisie",
                         JOptionPane.WARNING_MESSAGE);
+            } else {
+                // ---------- Si il n'y a pas d'erreur ------------
+
+                Utilisateur nouvelleUtilisateur = new Utilisateur(
+                        (String)selectCivilite.getSelectedItem(),
+                        champsNom.getText(),
+                        champsPrenom.getText(),
+                        champsEmail.getText(),
+                        (Pays)selectPays.getSelectedItem(),
+                        Integer.parseInt(champsAge.getText()),
+                        champsMarie.isSelected()
+                );
+                JOptionPane.showMessageDialog(
+                        this,
+                        "L'Utilisateur " + nouvelleUtilisateur.getNom() + "a bien été ajouté"
+                );
             }
         });
 
