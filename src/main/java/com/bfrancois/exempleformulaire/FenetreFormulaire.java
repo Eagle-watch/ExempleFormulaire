@@ -1,6 +1,5 @@
 package com.bfrancois.exempleformulaire;
 
-import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -19,44 +18,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class FenetrePrincipale extends JFrame implements WindowListener{
+public class FenetreFormulaire extends JFrame{
 
     protected boolean themeSombreActif = true;
     protected int defaultMargin = 10;
 
-    public FenetrePrincipale() {
 
-        ObjectInputStream ois = null;
-        try {
-            final FileInputStream fichier = new FileInputStream("personne.eesc");
-            ois = new ObjectInputStream(fichier);
-            Utilisateur utilisateurFichier = (Utilisateur)ois.readObject();
-            System.out.printf(utilisateurFichier.getNom());
-            ois.close();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Impossible d'ouvrir le fichier"
-            );
-        } catch (ClassNotFoundException | ClassCastException e) {
+    protected JComboBox<String> selectCivilite;
+    protected ChampsSaisie champsNom;
+    protected ChampsSaisie champsPrenom;
+    protected ChampsSaisie champsEmail;
+    protected JComboBox<Pays> selectPays;
+    protected ChampsSaisie champsAge;
+    protected JCheckBox champsMarie;
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Fichier corrompu"
-            );
-
-        }
-
+    public FenetreFormulaire() {
 
         setSize(500,500);
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-
-        addWindowListener(this);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         //ajout du panneau principal avec un layout de 5 zones
         // (NORTH, SOUTH, EAST, WEST, CENTER)
         JPanel panneau = new JPanel(new BorderLayout());
         setContentPane(panneau);
+
+        ChampsSaisie boite = new ChampsSaisie();
 
         //--------- BOUTON THEME -----------
 
@@ -92,69 +78,65 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
         //---------------- FORMULAIRE ------------------
 
 
-        Box formulaire = Box.createVerticalBox();
+        Box boxFormulaire = Box.createVerticalBox();
         //formulaire.setBorder(BorderFactory.createLineBorder(Color.RED));
 
-        panneau.add(formulaire, BorderLayout.CENTER);
+        panneau.add(boxFormulaire, BorderLayout.CENTER);
 
 
         //---------------- LISTE CIVILITE ------------------
 
         String[] listeCivilites = {"Monsieur","Madame","Mademoiselle","Autre"};
-        JComboBox<String> selectCivilite = new JComboBox<>(listeCivilites);
+        selectCivilite = new JComboBox<>(listeCivilites);
 
-        formulaire.add(HelperForm.generateField(
+        boxFormulaire.add(HelperForm.generateField(
                 "Civilité",selectCivilite));
 
         //---------------- CHAMPS TEXT : NOM ---------------
 
-        ChampsSaisie champsNom = new ChampsSaisie("[\\p{L}\s'-]");
-        formulaire.add(
+        champsNom = new ChampsSaisie("[\\p{L}\s'-]");
+        boxFormulaire.add(
                 HelperForm.generateField("Nom", champsNom)
         );
 
         //---------------- CHAMPS TEXT : PRENOM ---------------
 
-        ChampsSaisie champsPrenom = new ChampsSaisie("[\\p{L}\s'-]");
-        formulaire.add(
+        champsPrenom = new ChampsSaisie("[\\p{L}\s'-]");
+        boxFormulaire.add(
                 HelperForm.generateField("Prénom", champsPrenom)
         );
 
-        //---------------- CHAMPS TEXT : Email ---------------
+        //---------------- CHAMPS TEXT : EMAIL ---------------
 
-        ChampsSaisie champsEmail = new ChampsSaisie("[a-zA-Z0-9\\.@-]");
-        formulaire.add(
-                HelperForm.generateField("email", champsEmail)
+        champsEmail = new ChampsSaisie("[a-zA-Z0-9@\\.-]");
+        boxFormulaire.add(
+                HelperForm.generateField("Email", champsEmail)
         );
 
         champsEmail.getTextField().addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
+            public void keyTyped(KeyEvent e) {}
             @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
+            public void keyPressed(KeyEvent e) {}
 
             @Override
             public void keyReleased(KeyEvent e) {
+
                 if(champsEmail.getText().equals("")) {
-                    champsEmail.erreur("Champs Obligatoire");
+                    champsEmail.erreur("Champs obligatoire");
                 } else {
 
                     String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(champsEmail.getText());
+
                     if(!matcher.matches()){
-                        champsEmail.erreur("Format Invalide");
+                        champsEmail.erreur("Format invalide");
                     }
-
                 }
-
             }
         });
+
 
         //---------------- LISTE PAYS ------------------
         Pays[] listePays = {
@@ -163,8 +145,7 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 new Pays("Allemagne", "DE", "de.png")
         };
 
-
-        JComboBox<Pays> selectPays = new JComboBox<>(listePays);
+        selectPays = new JComboBox<>(listePays);
 
         selectPays.setRenderer(new DefaultListCellRenderer(){
             @Override
@@ -192,23 +173,23 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
             }
         });
 
-        formulaire.add(
+        boxFormulaire.add(
                 HelperForm.generateField("Pays",selectPays)
         );
 
-        //---------------- CHAMPS TEXT : Ages ---------------
 
-        ChampsSaisie champsAge = new ChampsSaisie("[0-9]");
-        formulaire.add(
-                HelperForm.generateField("Age", champsAge)
-        );
+        //---------------- CHAMPS TEXT : AGE ---------------
 
-        //---------------- CHAMPS Checkbox : Marie/Pacse ---------------
+        champsAge = new ChampsSaisie("[0-9]");
+        boxFormulaire.add(
+                HelperForm.generateField("Age", champsAge,50));
 
-        JCheckBox champsMarie = new JCheckBox();
-        formulaire.add(
-                HelperForm.generateField("Marie/Pacse", champsMarie)
-        );
+        //---------------- CHAMPS CHECKBOX : MARIE/PACSE ---------------
+
+        champsMarie = new JCheckBox();
+        boxFormulaire.add(
+                HelperForm.generateField("Marie/pacse", champsMarie));
+
 
         //--------- BOUTON VALIDER FORMULAIRE -----------
 
@@ -224,35 +205,57 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
             String message = "Le formulaire comporte des erreurs : ";
 
             champsNom.resetMessage();
-//          champsNom.setBorder(BorderFactory.createEmptyBorder());
             champsPrenom.resetMessage();
-                    // Validateur Nom
+
+            //------ validateur nom -------
             if(champsNom.getText().equals("")) {
                 erreurNom = true;
                 message += "\n - Nom obligatoire,";
                 champsNom.erreur("Champs obligatoire");
             }
-                    // Validateur Prenoom
+
+            //------ validateur prenom -------
             if(champsPrenom.getText().equals("")) {
                 erreurPrenom = true;
                 message += "\n - Prénom obligatoire,";
-                champsPrenom.erreur("Champs Obligatoire");
+                champsPrenom.erreur("Champs obligatoire");
             }
-                    // Validateur Age
+
+            //------ validateur age -------
             if(champsAge.getText().equals("")) {
                 erreurAge = true;
                 message += "\n - Age obligatoire,";
-                champsAge.erreur("Champs Obligatoire");
+                champsAge.erreur("Champs obligatoire");
             } else {
 
                 int age = Integer.parseInt(champsAge.getText());
-                if (age<= 0 || age > 150){
-                    erreurAge =true;
-                    message += "\n - Age avec une valeur Impossible, ";
-                    champsAge.erreur("Valeur Impossible");
+
+                if(age <= 0 || age > 150) {
+                    erreurAge = true;
+                    message += "\n - Age avec une valeur impossible,";
+                    champsAge.erreur("Valeur impossible");
+                }
+            }
+
+            //------ validateur email -------
+            if(champsEmail.getText().equals("")) {
+                erreurEmail = true;
+                message += "\n - Email obligatoire,";
+                champsEmail.erreur("Champs obligatoire");
+            } else {
+
+                String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(champsEmail.getText());
+
+                if(!matcher.matches()){
+                    erreurEmail = true;
+                    message += "\n - Email format invalide,";
+                    champsEmail.erreur("Format invalide");
                 }
 
             }
+
             //on supprime la dernière des virgules
             message = message.substring(0,message.length()-1);
 
@@ -264,9 +267,9 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                         "Erreur de saisie",
                         JOptionPane.WARNING_MESSAGE);
             } else {
-                // ---------- Si il n'y a pas d'erreur ------------
+                //----------- si il n'y a pas d'erreur --------
 
-                Utilisateur nouvelleUtilisateur = new Utilisateur(
+                Utilisateur nouvelUtilisateur = new Utilisateur(
                         (String)selectCivilite.getSelectedItem(),
                         champsNom.getText(),
                         champsPrenom.getText(),
@@ -277,89 +280,74 @@ public class FenetrePrincipale extends JFrame implements WindowListener{
                 );
 
                 ObjectOutputStream oos = null;
+
                 try {
                     FileOutputStream fichier = new FileOutputStream("personne.eesc");
 
                     oos = new ObjectOutputStream(fichier);
-                    oos.writeObject(nouvelleUtilisateur);
+                    oos.writeObject(nouvelUtilisateur);
                     oos.flush();
                     oos.close();
 
                     JOptionPane.showMessageDialog(
                             this,
-                            "L'Utilisateur " + nouvelleUtilisateur.getNom() + "a bien été ajouté"
-                    );
-                } catch (IOException ex) {
+                            "L'utilisateur " + nouvelUtilisateur.getNom() + " a bien été ajouté");
 
+                } catch (IOException ex) {
                     JOptionPane.showMessageDialog(
                             this,
-                            "Impossible d'enregistrer l'utilisateur"
-                    );
-
+                            "Impossible d'enregistrer l'utilisateur");
                 }
-
             }
         });
 
-        boutonValider.setSize(new Dimension(100, 30));
+
 
         //---------- BOUTONS DU BAS -------
+
+        boutonValider.setSize(new Dimension(100, 30));
 
         panneau.add(
                 HelperForm.generateRow(boutonValider,0,10,10,0, HelperForm.ALIGN_RIGHT),
                 BorderLayout.SOUTH);
 
+        ouvrirFichier();
+
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        FlatDarculaLaf.setup();
-        new FenetrePrincipale();
-    }
+    public void ouvrirFichier() {
 
-    @Override
-    public void windowOpened(WindowEvent e) {
+        ObjectInputStream ois = null;
 
-    }
+        try {
+            FileInputStream fichier = new FileInputStream("personne.eesc");
+            ois = new ObjectInputStream(fichier);
+            Utilisateur utilisateurFichier = (Utilisateur)ois.readObject();
 
-    @Override
-    public void windowClosing(WindowEvent e) {
-        String[] choix = {"Oui", "Ne pas fermer l'application"};
-        int choixUtilisateur = JOptionPane.showOptionDialog(
-                this,
-                "Voulez-vous vraiment fermer l'application",
-                "Confirmer",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                choix,
-                choix[1]);
+            //----- hydrataion du formulaire ----
 
-        if(choixUtilisateur == JOptionPane.YES_OPTION) {
-            System.exit(1);
+            selectCivilite.setSelectedItem(utilisateurFichier.getCivilite());
+            champsNom.getTextField().setText(utilisateurFichier.getNom());
+            champsPrenom.getTextField().setText(utilisateurFichier.getPrenom());
+            champsEmail.getTextField().setText(utilisateurFichier.getEmail());
+            selectPays.setSelectedItem(utilisateurFichier.getPays());
+            champsAge.getTextField().setText(String.valueOf(utilisateurFichier.getAge()));
+            champsMarie.setSelected(utilisateurFichier.isMarie());
+
+            ois.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Première fois qu'on ouvre l'application");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Impossible d'ouvrir le fichier");
+        } catch (ClassNotFoundException | ClassCastException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Fichier corrompu");
         }
     }
 
-    @Override
-    public void windowClosed(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowIconified(WindowEvent e) {
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {
-    }
-
-    @Override
-    public void windowActivated(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {
-
-    }
 }

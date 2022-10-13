@@ -73,6 +73,10 @@ public class HelperForm {
         //ajout de la marge horizontale à droite
         conteneurHorizontal.add(Box.createRigidArea(new Dimension(marginRight,1)));
 
+        if(alignement == ALIGN_LEFT) {
+            conteneurHorizontal.add(Box.createHorizontalGlue());
+        }
+
         return conteneurVertical;
     }
 }
