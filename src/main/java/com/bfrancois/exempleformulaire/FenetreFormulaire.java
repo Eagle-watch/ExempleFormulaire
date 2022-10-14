@@ -29,7 +29,7 @@ public class FenetreFormulaire extends JPanel {
     protected ChampsSaisie champsAge;
     protected JCheckBox champsMarie;
 
-    public FenetreFormulaire() {
+    public FenetreFormulaire(OnClickAjouter callback) {
 
         setSize(500,500);
 
@@ -240,25 +240,7 @@ public class FenetreFormulaire extends JPanel {
                         champsMarie.isSelected()
                 );
 
-                ObjectOutputStream oos = null;
-
-                try {
-                    FileOutputStream fichier = new FileOutputStream("personne.eesc");
-
-                    oos = new ObjectOutputStream(fichier);
-                    oos.writeObject(nouvelUtilisateur);
-                    oos.flush();
-                    oos.close();
-
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "L'utilisateur " + nouvelUtilisateur.getNom() + " a bien été ajouté");
-
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "Impossible d'enregistrer l'utilisateur");
-                }
+                callback.executer(nouvelUtilisateur);
             }
         });
 
@@ -309,6 +291,7 @@ public class FenetreFormulaire extends JPanel {
                     "Fichier corrompu");
         }
     }
+
 
 
 
