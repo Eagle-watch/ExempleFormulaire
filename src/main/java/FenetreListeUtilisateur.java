@@ -1,9 +1,13 @@
 import com.bfrancois.exempleformulaire.FenetreFormulaire;
 import com.bfrancois.exempleformulaire.HelperForm;
+import com.bfrancois.exempleformulaire.models.Pays;
+import com.bfrancois.exempleformulaire.models.Utilisateur;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -11,10 +15,8 @@ import java.awt.event.WindowListener;
 public class FenetreListeUtilisateur extends JFrame implements WindowListener {
 
     protected boolean themeSombreActif = true;
-
-   public FenetreListeUtilisateur(){
-
-        setSize(500,500);
+    public FenetreListeUtilisateur() {
+        setSize(800,500);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         addWindowListener(this);
@@ -24,56 +26,88 @@ public class FenetreListeUtilisateur extends JFrame implements WindowListener {
         JPanel panneau = new JPanel(new BorderLayout());
         setContentPane(panneau);
 
-       //--------- BOUTON THEME -----------
+        //--------- BOUTON THEME -----------
 
-       JButton boutonTheme = new JButton("Changer le theme");
-       JButton boutonAjoutUtilisateur = new JButton("Ajout Utilisateur");
+        JButton boutonTheme = new JButton("Changer le theme");
 
+        boutonTheme.addActionListener(
+                e -> {
+                    try {
+                        if(themeSombreActif) {
+                            UIManager.setLookAndFeel(new FlatLightLaf());
+                        } else {
+                            UIManager.setLookAndFeel(new FlatDarculaLaf());
+                        }
+                        SwingUtilities.updateComponentTreeUI(this);
+                        themeSombreActif = !themeSombreActif;
 
-       boutonTheme.addActionListener(
-               e -> {
-                   try {
-                       if(themeSombreActif) {
-                           UIManager.setLookAndFeel(new FlatLightLaf());
-                       } else {
-                           UIManager.setLookAndFeel(new FlatDarculaLaf());
-                       }
-                       SwingUtilities.updateComponentTreeUI(this);
-                       themeSombreActif = !themeSombreActif;
-
-                   } catch (UnsupportedLookAndFeelException ex) {
-                       throw new RuntimeException(ex);
-                   }
-               }
-       );
-
-       //---------- BOUTONS DU HAUT -------
-
-       Box boxBoutonHaut = Box.createVerticalBox();
-
-       boxBoutonHaut.add(
-               HelperForm.generateRow(boutonTheme,10,10,0,0, HelperForm.ALIGN_RIGHT)
-       );
-       boxBoutonHaut.add(
-               HelperForm.generateRow(boutonAjoutUtilisateur,10,0,0,10, HelperForm.ALIGN_LEFT)
-       );
-
-       panneau.add(boxBoutonHaut,BorderLayout.NORTH);
+                    } catch (UnsupportedLookAndFeelException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+        );
 
 
+        FenetreFormulaire fenetreFormulaire = new FenetreFormulaire();
+
+        JButton boutonAjoutUtilisateur = new JButton("Ajouter un utilisateur");
+        boutonAjoutUtilisateur.addActionListener(
+                e -> {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            fenetreFormulaire,
+                            "Ajouter un utilisateur",
+                            JOptionPane.PLAIN_MESSAGE);
+                }
+        );
+
+        //---------- BOUTONS DU HAUT -------
+
+        Box boxBoutonHaut = Box.createVerticalBox();
+
+        boxBoutonHaut.add(
+                HelperForm.generateRow(boutonTheme,10,10,0,0, HelperForm.ALIGN_RIGHT)
+        );
+        boxBoutonHaut.add(
+                HelperForm.generateRow(boutonAjoutUtilisateur,10,0,0,10, HelperForm.ALIGN_LEFT)
+        );
+
+        panneau.add(boxBoutonHaut,BorderLayout.NORTH);
+
+        //----------- TABLE UTILISATEUR ------------
+
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("Civilité");
+        model.addColumn("Nom");
+        model.addColumn("Prénom");
+        model.addColumn("Email");
+        model.addColumn("Pays");
+        model.addColumn("Age");
+        model.addColumn("Marié");
+        model.addColumn("Actions");
 
 
 
+        JTable tableUtilisateur = new JTable(model);
+        tableUtilisateur.setEnabled(false);
 
+        panneau.add(new JScrollPane(tableUtilisateur),BorderLayout.CENTER);
 
+        Utilisateur utilisateurTest = new Utilisateur(
+                "Monsieur",
+                "BANSEPT",
+                "Franck",
+                "bansept.franck@gmail.com",
+                new Pays("FRANCE","FR","fr.png"),
+                35,
+                true);
 
+        model.addRow(utilisateurTest.getLigneTableau());
 
-
-
-
-       setVisible(true);
-
+        setVisible(true);
     }
+
+
 
     public static void main(String[] args) {
         FlatDarculaLaf.setup();
@@ -125,5 +159,6 @@ public class FenetreListeUtilisateur extends JFrame implements WindowListener {
     public void windowDeactivated(WindowEvent e) {
 
     }
+
 
 }

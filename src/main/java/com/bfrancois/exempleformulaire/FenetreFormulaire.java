@@ -1,13 +1,13 @@
 package com.bfrancois.exempleformulaire;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
 import com.bfrancois.exempleformulaire.models.Pays;
 import com.bfrancois.exempleformulaire.models.Utilisateur;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -17,12 +17,9 @@ import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+public class FenetreFormulaire extends JPanel {
 
-public class FenetreFormulaire extends JFrame{
-
-    protected boolean themeSombreActif = true;
     protected int defaultMargin = 10;
-
 
     protected JComboBox<String> selectCivilite;
     protected ChampsSaisie champsNom;
@@ -35,45 +32,9 @@ public class FenetreFormulaire extends JFrame{
     public FenetreFormulaire() {
 
         setSize(500,500);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        //ajout du panneau principal avec un layout de 5 zones
-        // (NORTH, SOUTH, EAST, WEST, CENTER)
-        JPanel panneau = new JPanel(new BorderLayout());
-        setContentPane(panneau);
-
-        ChampsSaisie boite = new ChampsSaisie();
-
-        //--------- BOUTON THEME -----------
-
-        JButton boutonTheme = new JButton("Changer le theme");
-
-
-        boutonTheme.addActionListener(
-                e -> {
-                    try {
-                        if(themeSombreActif) {
-                            UIManager.setLookAndFeel(new FlatLightLaf());
-                        } else {
-                            UIManager.setLookAndFeel(new FlatDarculaLaf());
-                        }
-                        SwingUtilities.updateComponentTreeUI(this);
-                        themeSombreActif = !themeSombreActif;
-
-                    } catch (UnsupportedLookAndFeelException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-        );
-
-
-
-        //---------- BOUTONS DU HAUT -------
-        panneau.add(
-                HelperForm.generateRow(boutonTheme,10,10,0,0, HelperForm.ALIGN_RIGHT),
-                BorderLayout.NORTH);
-
-
+        //ajout du layout de 5 zones (NORTH, SOUTH, EAST, WEST, CENTER)
+        setLayout(new BorderLayout());
 
         //---------------- FORMULAIRE ------------------
 
@@ -81,7 +42,7 @@ public class FenetreFormulaire extends JFrame{
         Box boxFormulaire = Box.createVerticalBox();
         //formulaire.setBorder(BorderFactory.createLineBorder(Color.RED));
 
-        panneau.add(boxFormulaire, BorderLayout.CENTER);
+        add(boxFormulaire, BorderLayout.CENTER);
 
 
         //---------------- LISTE CIVILITE ------------------
@@ -307,13 +268,10 @@ public class FenetreFormulaire extends JFrame{
 
         boutonValider.setSize(new Dimension(100, 30));
 
-        panneau.add(
+        add(
                 HelperForm.generateRow(boutonValider,0,10,10,0, HelperForm.ALIGN_RIGHT),
                 BorderLayout.SOUTH);
 
-        ouvrirFichier();
-
-        setVisible(true);
     }
 
     public void ouvrirFichier() {
@@ -325,14 +283,16 @@ public class FenetreFormulaire extends JFrame{
             ois = new ObjectInputStream(fichier);
             Utilisateur utilisateurFichier = (Utilisateur)ois.readObject();
 
-            //----- hydrataion du formulaire ----
+            //----- hydratation du formulaire ----
 
             selectCivilite.setSelectedItem(utilisateurFichier.getCivilite());
             champsNom.getTextField().setText(utilisateurFichier.getNom());
             champsPrenom.getTextField().setText(utilisateurFichier.getPrenom());
             champsEmail.getTextField().setText(utilisateurFichier.getEmail());
             selectPays.setSelectedItem(utilisateurFichier.getPays());
-            champsAge.getTextField().setText(String.valueOf(utilisateurFichier.getAge()));
+            champsAge.getTextField().setText(
+                    String.valueOf(utilisateurFichier.getAge())
+            );
             champsMarie.setSelected(utilisateurFichier.isMarie());
 
             ois.close();
@@ -349,5 +309,7 @@ public class FenetreFormulaire extends JFrame{
                     "Fichier corrompu");
         }
     }
+
+
 
 }
